@@ -1,0 +1,40 @@
+{
+  "name": "safelease",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "setup": "node setup-env.js",
+    "compile": "hardhat compile",
+    "deploy": "hardhat run scripts/deploy.js --network celoTestnet",
+    "deploy:local": "hardhat run scripts/deploy.js --network hardhat",
+    "test": "hardhat test",
+    "verify": "hardhat verify --network celoTestnet"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^6.1.0",
+    "@openzeppelin/contracts": "^5.4.0",
+    "@types/react": "^19.1.13",
+    "@types/react-dom": "^19.1.9",
+    "@vitejs/plugin-react": "^5.0.3",
+    "buffer": "^6.0.3",
+    "dotenv": "^16.4.5",
+    "hardhat": "^2.26.3",
+    "process": "^0.11.10",
+    "typescript": "~5.8.3",
+    "vite": "^7.1.7"
+  },
+  "dependencies": {
+    "@celo/contractkit": "^5.0.0",
+    "@selfxyz/common": "^0.0.7",
+    "@selfxyz/contracts": "^1.2.0",
+    "@selfxyz/core": "^1.0.8",
+    "@selfxyz/qrcode": "^1.0.11",
+    "ethers": "^6.15.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}
