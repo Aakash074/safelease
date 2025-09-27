@@ -154,7 +154,7 @@ const App: React.FC = () => {
     return (
       <>
         {/* Dashboard Content */}
-        <div className="min-h-screen bg-gray-50">
+        <div className="dashboard">
           <nav className="navbar">
             <div className="nav-brand">
               <h2>SafeLease Dashboard</h2>
@@ -286,43 +286,44 @@ const App: React.FC = () => {
               )}
               
               {!userVerification.isVerified && (
-                <div className="bg-white rounded-lg shadow-md p-6">
-                  <div className="text-center mb-6">
-                    <div className="text-6xl mb-4">🏠</div>
-                    <h2 className="text-3xl font-bold text-gray-800 mb-2">Welcome to SafeLease</h2>
-                    <p className="text-gray-600 mb-6">
-                      Get started by verifying your identity and choosing your role
+                <div className="dashboard-content">
+                  <div className="welcome-section">
+                    <div className="welcome-icon">🏠</div>
+                    <h1>Welcome to SafeLease</h1>
+                    <p>
+                      Get started by verifying your identity and choosing your role. 
+                      Experience secure, transparent property rentals powered by blockchain technology.
                     </p>
                   </div>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-                    <button
+                  <div className="verification-cards">
+                    <div 
+                      className="verification-card landlord"
                       onClick={() => openVerificationModal('landlord')}
-                      className="p-6 border-2 border-gray-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all duration-200 transform hover:scale-105"
                     >
-                      <div className="text-4xl mb-3">🏡</div>
-                      <h3 className="text-xl font-semibold text-gray-800 mb-2">Landlord</h3>
-                      <p className="text-gray-600 mb-4">List and manage rental properties</p>
-                      <div className="text-sm text-blue-600 font-medium">Start Verification →</div>
-                    </button>
+                      <div className="icon">🏡</div>
+                      <h3>Landlord</h3>
+                      <p>List and manage rental properties with automated tokenization and secure tenant verification</p>
+                      <button className="verification-btn">Start Verification →</button>
+                    </div>
                     
-                    <button
+                    <div 
+                      className="verification-card tenant"
                       onClick={() => openVerificationModal('tenant')}
-                      className="p-6 border-2 border-gray-200 rounded-xl hover:border-green-500 hover:bg-green-50 transition-all duration-200 transform hover:scale-105"
                     >
-                      <div className="text-4xl mb-3">🔑</div>
-                      <h3 className="text-xl font-semibold text-gray-800 mb-2">Tenant</h3>
-                      <p className="text-gray-600 mb-4">Find and rent properties or rooms</p>
-                      <div className="text-sm text-green-600 font-medium">Start Verification →</div>
-                    </button>
+                      <div className="icon">🔑</div>
+                      <h3>Tenant</h3>
+                      <p>Find and rent properties or rooms with verified identity and transparent lease agreements</p>
+                      <button className="verification-btn">Start Verification →</button>
+                    </div>
                   </div>
                   
-                  <div className="mt-8 text-center">
-                    <p className="text-sm text-gray-500 mb-4">SafeLease uses Self Protocol for secure, privacy-preserving identity verification</p>
-                    <div className="flex justify-center space-x-4 text-xs text-gray-400">
-                      <span>✓ Zero-knowledge proofs</span>
-                      <span>✓ Privacy protection</span>
-                      <span>✓ OFAC compliance</span>
+                  <div className="features-list">
+                    <h4>SafeLease uses Self Protocol for secure, privacy-preserving identity verification</h4>
+                    <div className="features-grid">
+                      <div className="feature-item">Zero-knowledge proofs</div>
+                      <div className="feature-item">Privacy protection</div>
+                      <div className="feature-item">OFAC compliance</div>
                     </div>
                   </div>
                 </div>
