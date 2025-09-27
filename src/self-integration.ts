@@ -1,8 +1,28 @@
 // Self Protocol integration for SafeLease
+import { SelfAppBuilder, SelfQRcodeWrapper } from '@selfxyz/qrcode';
+import QRCode from 'qrcode';
+
 export class SafeLeaseSelfIntegration {
   
   constructor() {
-    // Initialize will be done when needed
+    // Initialize with generated configuration from tools.self.xyz
+  }
+
+  // Generated configuration from tools.self.xyz
+  private readonly SCOPE = "idverif"; // Short identifier for SelfAppBuilder
+  private readonly FULL_SCOPE = "13717901327455018414007582325226879605797265321250223979867799014397208917022"; // Full scope for contract
+  private readonly CONFIG_ID = "0x766466f264a44af31cd388cd05801bcc5dfff4980ee97503579db8b3d0742a7e";
+  
+  /**
+   * Generate a unique user ID for Self Protocol
+   */
+  private generateUserId(): string {
+    // Generate a UUID v4 format
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
   }
   
   /**
@@ -12,22 +32,64 @@ export class SafeLeaseSelfIntegration {
   async startLandlordVerification(userData?: string) {
     const encodedUserData = this.encodeUserData(0, userData); // 0 = LANDLORD
     
-    // Create verification URL for Self Protocol
-    const verificationUrl = this.createVerificationUrl({
-      endpoint: import.meta.env.VITE_IDENTITY_VERIFICATION_CONTRACT || '',
-      userDefinedData: encodedUserData,
-      disclosures: {
-        minimumAge: 18,
-        nationality: true,
-        ofacCheck: true,
-      },
-      metadata: {
-        title: 'Landlord Verification',
-        description: 'Verify your identity to list rental properties',
-      },
-    });
+    console.log('Starting landlord verification with:', { userData, encodedUserData });
     
-    return { url: verificationUrl, qrCode: verificationUrl };
+    try {
+      // Create SelfApp using SelfAppBuilder
+      const selfApp = new SelfAppBuilder({
+        appName: 'SafeLease',
+        scope: this.SCOPE,
+        devMode: true,
+        endpoint: '0x12f956E51bB5f9C8AA30757C0874C62b28aC294b', // Use Self Protocol playground endpoint for testing
+        userId: this.generateUserId(), // Generate a unique user ID
+        userDefinedData: encodedUserData,
+        endpointType: "staging_celo", //@ts-ignore
+        chainID: 11142220,
+        disclosures: {
+          minimumAge: 18,
+          nationality: true,
+        },
+      }).build();
+      
+      console.log('SelfApp created successfully:', selfApp);
+      
+      // Return the selfApp object for use with SelfQRcodeWrapper
+      return { 
+        selfApp: selfApp,
+        type: 'landlord',
+        additionalData: userData
+      };
+    } catch (error) {
+      console.error('Self Protocol verification creation failed:', error);
+      // Fallback to manual URL creation
+      const verificationUrl = this.createVerificationUrl({
+        endpoint: import.meta.env.VITE_IDENTITY_VERIFICATION_CONTRACT_NEW || import.meta.env.VITE_IDENTITY_VERIFICATION_CONTRACT || '',
+        userDefinedData: encodedUserData,
+        configId: this.CONFIG_ID,
+        scope: this.SCOPE,
+        disclosures: {
+          minimumAge: 18,
+          nationality: true,
+        },
+        metadata: {
+          title: 'Landlord Verification',
+          description: 'Verify your identity to list rental properties',
+        },
+      });
+      
+      // Generate QR code using qrcode library as fallback
+      const qrCodeDataUrl = await QRCode.toDataURL(verificationUrl, {
+        width: 200,
+        margin: 2,
+      });
+      
+      return { 
+        url: verificationUrl, 
+        qrCode: qrCodeDataUrl,
+        deepLink: verificationUrl,
+        fallback: true
+      };
+    }
   }
   
   /**
@@ -38,21 +100,62 @@ export class SafeLeaseSelfIntegration {
   async startTenantVerification(incomeRange: string, employmentStatus: string) {
     const userData = this.encodeUserData(1, `${incomeRange}|${employmentStatus}`); // 1 = TENANT
     
-    const verificationUrl = this.createVerificationUrl({
-      endpoint: import.meta.env.VITE_IDENTITY_VERIFICATION_CONTRACT || '',
-      userDefinedData: userData,
-      disclosures: {
-        minimumAge: 18,
-        nationality: true,
-        ofacCheck: true,
-      },
-      metadata: {
-        title: 'Tenant Verification',
-        description: 'Verify your identity and income to apply for rentals',
-      },
-    });
+    console.log('Starting tenant verification with:', { incomeRange, employmentStatus, userData });
     
-    return { url: verificationUrl, qrCode: verificationUrl };
+    try {
+      // Create SelfApp using SelfAppBuilder
+      const selfApp = new SelfAppBuilder({
+        appName: 'SafeLease',
+        scope: this.SCOPE,
+        devMode: true,
+        endpoint: '0x12f956E51bB5f9C8AA30757C0874C62b28aC294b', // Use Self Protocol playground endpoint for testing
+        userId: this.generateUserId(), // Generate a unique user ID
+        userDefinedData: userData,
+        endpointType: "staging_celo", //@ts-ignore
+        chainID: 11142220,
+        disclosures: {
+          minimumAge: 18,
+          nationality: true,
+        },
+      }).build();
+      
+      // Return the selfApp object for use with SelfQRcodeWrapper
+      return { 
+        selfApp: selfApp,
+        type: 'tenant',
+        additionalData: `${incomeRange}|${employmentStatus}`
+      };
+    } catch (error) {
+      console.error('Self Protocol verification creation failed:', error);
+      // Fallback to manual URL creation
+      const verificationUrl = this.createVerificationUrl({
+        endpoint: import.meta.env.VITE_IDENTITY_VERIFICATION_CONTRACT_NEW || import.meta.env.VITE_IDENTITY_VERIFICATION_CONTRACT || '',
+        userDefinedData: userData,
+        configId: this.CONFIG_ID,
+        scope: this.SCOPE,
+        disclosures: {
+          minimumAge: 18,
+          ofac: true
+        },
+        metadata: {
+          title: 'Tenant Verification',
+          description: 'Verify your identity and income to apply for rentals',
+        },
+      });
+      
+      // Generate QR code using qrcode library as fallback
+      const qrCodeDataUrl = await QRCode.toDataURL(verificationUrl, {
+        width: 200,
+        margin: 2,
+      });
+      
+      return { 
+        url: verificationUrl, 
+        qrCode: qrCodeDataUrl,
+        deepLink: verificationUrl,
+        fallback: true
+      };
+    }
   }
   
   /**

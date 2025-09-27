@@ -3,13 +3,14 @@ pragma solidity 0.8.28;
 
 import {SelfVerificationRoot} from "@selfxyz/contracts/contracts/abstract/SelfVerificationRoot.sol";
 import {ISelfVerificationRoot} from "@selfxyz/contracts/contracts/interfaces/ISelfVerificationRoot.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
  * @title SafeLeaseIdentityVerification
  * @notice Identity verification contract for SafeLease platform using Self Protocol
  * @dev Supports landlord and tenant verification only
  */
-contract SafeLeaseIdentityVerification is SelfVerificationRoot {
+contract SafeLeaseIdentityVerification is SelfVerificationRoot, Ownable {
     
     // Verification types
     enum VerificationType {
@@ -41,14 +42,14 @@ contract SafeLeaseIdentityVerification is SelfVerificationRoot {
     mapping(address => UserVerification) public userVerifications;
     mapping(VerificationType => bytes32) public configIds;
     
-    // Configuration
-    bytes32 public constant LANDLORD_CONFIG_ID = 0x7b6436b0c98f62380866d9432c2af0ee08ce16a171bda6951aecd95ee1307d61;
-    bytes32 public constant TENANT_CONFIG_ID = 0x8c7547c1d98f62380866d9432c2af0ee08ce16a171bda6951aecd95ee1307d62;
+    // Configuration - Updated with generated config ID from tools.self.xyz
+    bytes32 public constant LANDLORD_CONFIG_ID = 0x766466f264a44af31cd388cd05801bcc5dfff4980ee97503579db8b3d0742a7e;
+    bytes32 public constant TENANT_CONFIG_ID = 0x766466f264a44af31cd388cd05801bcc5dfff4980ee97503579db8b3d0742a7e;
     
     constructor(
         address _identityVerificationHubV2Address,
         uint256 _scope
-    ) SelfVerificationRoot(_identityVerificationHubV2Address, _scope) {
+    ) SelfVerificationRoot(_identityVerificationHubV2Address, _scope) Ownable(msg.sender) {
         configIds[VerificationType.LANDLORD] = LANDLORD_CONFIG_ID;
         configIds[VerificationType.TENANT] = TENANT_CONFIG_ID;
     }
@@ -128,4 +129,29 @@ contract SafeLeaseIdentityVerification is SelfVerificationRoot {
             additionalData = string(dataBytes);
         }
     }
+    
+    /**
+     * @notice Update the scope for Self Protocol verification
+     * @dev Only the contract owner can update the scope
+     * @param _newScope The new scope value from tools.self.xyz
+     */
+    function updateScope(uint256 _newScope) external onlyOwner {
+        _setScope(_newScope);
+    }
+    
+    /**
+     * @notice Update the config ID for a verification type
+     * @dev Only the contract owner can update the config ID
+     * @param _userType The verification type (LANDLORD or TENANT)
+     * @param _newConfigId The new config ID from tools.self.xyz
+     */
+    function updateConfigId(VerificationType _userType, bytes32 _newConfigId) external onlyOwner {
+        configIds[_userType] = _newConfigId;
+        emit ConfigIdUpdated(_userType, _newConfigId);
+    }
+    
+    /**
+     * @notice Event emitted when config ID is updated
+     */
+    event ConfigIdUpdated(VerificationType userType, bytes32 newConfigId);
 }

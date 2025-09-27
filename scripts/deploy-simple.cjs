@@ -1,16 +1,17 @@
 const { ethers } = require("hardhat");
+require("dotenv").config();
 
 async function main() {
-  console.log("🚀 Starting SafeLease Deployment...");
+  console.log("🚀 Starting SafeLease Contract Deployment (Simple)...");
   
   // Get the deployer account
   const [deployer] = await ethers.getSigners();
   console.log("Deploying contracts with account:", deployer.address);
-  console.log("Account balance:", ethers.formatEther(await ethers.provider.getBalance(deployer.address)), "CELO");
+  console.log("Account balance:", ethers.formatEther(await ethers.provider.getBalance(deployer.address)), "ETH");
   
-  // Configuration for Celo Alfajores
-  const SELF_HUB_ADDRESS = "0x68c931C9a534D37aa78094877F46fE46a49F1A51"; // Self Protocol Hub V2 on Alfajores
-  const SCOPE = 0; // Will be updated after deployment
+  // Configuration
+  const SELF_HUB_ADDRESS = process.env.SELF_IDENTITY_VERIFICATION_HUB_V2 || "0x68c931C9a534D37aa78094877F46fE46a49F1A51";
+  const SCOPE = process.env.SELF_PROTOCOL_SCOPE || "0"; // Scope as string to avoid overflow
   
   console.log("📋 Configuration:");
   console.log("- Self Hub Address:", SELF_HUB_ADDRESS);
@@ -20,6 +21,7 @@ async function main() {
     // Deploy SafeLeaseFactory
     console.log("\n📦 Deploying SafeLeaseFactory...");
     const SafeLeaseFactory = await ethers.getContractFactory("SafeLeaseFactory");
+    
     const factory = await SafeLeaseFactory.deploy(
       SELF_HUB_ADDRESS,
       SCOPE
@@ -31,13 +33,11 @@ async function main() {
     
     // Get contract addresses from factory
     const contractAddresses = await factory.getContractAddresses();
-    const contractInfo = await factory.getContractInfo();
     
     console.log("\n📋 Deployed Contract Addresses:");
     console.log("- Identity Verification:", contractAddresses[0]);
     console.log("- Rental Management:", contractAddresses[1]);
     console.log("- Deposit Escrow:", contractAddresses[2]);
-    console.log("- Factory Owner:", contractInfo.contractOwner);
     
     // Verify contracts are accessible
     console.log("\n🔍 Verifying contracts...");
@@ -48,17 +48,21 @@ async function main() {
     
     console.log("✅ All contracts verified and accessible");
     
-    // Deploy Property Token Contract (for security token functionality)
+    // Deploy Property Token Contract
     console.log("\n📦 Deploying Property Token Contract...");
     
-    const propertyTokenAddress = await factory.deployPropertyToken(
+    const SafeLeasePropertyToken = await ethers.getContractFactory("SafeLeasePropertyToken");
+    const propertyToken = await SafeLeasePropertyToken.deploy(
       "PROP-001", // Property ID
       "123 Main St, San Francisco, CA", // Property address
       ethers.parseEther("1000000"), // $1M property value
       ethers.parseEther("1000000"), // 1M tokens (1 token = $1)
-      deployer.address // Property owner
+      deployer.address, // Property owner
+      contractAddresses[0] // Identity verification contract
     );
     
+    await propertyToken.waitForDeployment();
+    const propertyTokenAddress = await propertyToken.getAddress();
     console.log("✅ SafeLease Property Token deployed to:", propertyTokenAddress);
     
     // Save deployment info
@@ -87,12 +91,11 @@ async function main() {
     
     console.log("\n📄 Deployment info saved to deployment-info.json");
     
-    console.log("\n🎉 SafeLease deployment completed successfully!");
+    console.log("\n🎉 Contract deployment completed successfully!");
     console.log("\n📋 Next Steps:");
-    console.log("1. Copy the contract addresses to your .env file");
-    console.log("2. Calculate scope using tools.self.xyz with factory address");
-    console.log("3. Update frontend with contract addresses");
-    console.log("4. Test the AI deposit refund functionality");
+    console.log("1. Update your .env file with the contract addresses above");
+    console.log("2. Calculate scope using tools.self.xyz");
+    console.log("3. Update scope in .env and run scope update script");
     
     console.log("\n🔗 Contract Explorer Links:");
     console.log(`- Factory: https://alfajores.celoscan.io/address/${factoryAddress}`);
@@ -100,23 +103,10 @@ async function main() {
     console.log(`- Rental: https://alfajores.celoscan.io/address/${contractAddresses[1]}`);
     console.log(`- Escrow: https://alfajores.celoscan.io/address/${contractAddresses[2]}`);
     console.log(`- Property Token: https://alfajores.celoscan.io/address/${propertyTokenAddress}`);
-    
-    console.log("\n📝 Environment Variables to Add:");
-    console.log("VITE_IDENTITY_VERIFICATION_CONTRACT=" + contractAddresses[0]);
-    console.log("VITE_RENTAL_MANAGEMENT_CONTRACT=" + contractAddresses[1]);
-    console.log("VITE_DEPOSIT_ESCROW_CONTRACT=" + contractAddresses[2]);
-    console.log("VITE_PROPERTY_TOKEN_CONTRACT=" + propertyTokenAddress);
-    
-    console.log("\n🤖 AI Deposit Refund Features:");
-    console.log("✅ Lease agreement creation");
-    console.log("✅ Deposit escrow management");
-    console.log("✅ AI damage verification (mock)");
-    console.log("✅ Automated deposit refunds");
-    console.log("✅ Self Protocol integration");
-    
+
   } catch (error) {
     console.error("❌ Deployment failed:", error);
-    throw error;
+    process.exit(1);
   }
 }
 

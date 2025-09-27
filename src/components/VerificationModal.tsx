@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { safeLeaseSelf } from '../self-integration';
+import { SelfQRcode } from '@selfxyz/qrcode';
 
 interface VerificationModalProps {
   isOpen: boolean;
@@ -16,6 +17,8 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [qrCode, setQrCode] = useState<string>('');
+  const [selfApp, setSelfApp] = useState<any>(null);
+  const [verificationData, setVerificationData] = useState<any>(null);
   const [step, setStep] = useState<'form' | 'qr' | 'complete'>('form');
   const [formData, setFormData] = useState({
     incomeRange: '',
@@ -27,15 +30,22 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
   const handleStartVerification = async () => {
     setIsLoading(true);
     try {
+      // Validate tenant form data
+      if (verificationType === 'tenant') {
+        if (!formData.incomeRange || !formData.employmentStatus) {
+          alert('Please select both income range and employment status for tenant verification.');
+          setIsLoading(false);
+          return;
+        }
+      }
+
       let verification;
-      let additionalData = '';
 
       switch (verificationType) {
         case 'landlord':
           verification = await safeLeaseSelf.startLandlordVerification();
           break;
         case 'tenant':
-          additionalData = `${formData.incomeRange}|${formData.employmentStatus}`;
           verification = await safeLeaseSelf.startTenantVerification(
             formData.incomeRange,
             formData.employmentStatus
@@ -43,16 +53,17 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
           break;
       }
 
-      const qrCodeData = await safeLeaseSelf.generateVerificationQR(
-        verificationType === 'landlord' ? 0 : 1,
-        additionalData
-      );
+      // Check if we have a selfApp (new method) or fallback data
+      if (verification.selfApp) {
+        setSelfApp(verification.selfApp);
+        setVerificationData(verification);
+      } else if (verification.qrCode) {
+        setQrCode(verification.qrCode);
+      }
       
-      setQrCode(qrCodeData);
       setStep('qr');
     } catch (error) {
       console.error('Verification start failed:', error);
-      alert('Failed to start verification. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -156,9 +167,30 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
               <p className="text-gray-600 mb-4">
                 Scan this QR code with your Self app to complete verification.
               </p>
-              {qrCode && (
+              {selfApp ? (
+                <div className="flex justify-center">
+                  <SelfQRcode
+                    selfApp={selfApp}
+                    onSuccess={() => {
+                      console.log('Verification successful');
+                      handleVerificationComplete({ success: true });
+                    }}
+                    onError={(error: any) => {
+                      console.error('Verification failed:', error);
+                      alert('Verification failed: ' + (error.reason || error.error_code || 'Unknown error'));
+                    }}
+                    size={200}
+                  />
+                </div>
+              ) : qrCode ? (
                 <div className="flex justify-center">
                   <img src={qrCode} alt="Verification QR Code" className="w-48 h-48" />
+                </div>
+              ) : (
+                <div className="flex justify-center">
+                  <div className="w-48 h-48 bg-gray-200 rounded flex items-center justify-center">
+                    <p className="text-gray-500">Loading QR Code...</p>
+                  </div>
                 </div>
               )}
             </div>

@@ -1,0 +1,16 @@
+{
+  "network": "celoTestnet",
+  "factoryAddress": "0x3F4B983651f450CF5eE46e5283C457DF47d97B60",
+  "contracts": {
+    "identityVerification": "0x12f956E51bB5f9C8AA30757C0874C62b28aC294b",
+    "rentalManagement": "0x1006d46a1A3d77553fBce7F5B9F3F7a011c4b482",
+    "depositEscrow": "0x23A41b4Ca64723751c4B34Ff958977E46FE9588A",
+    "propertyToken": "0x9Bc8Bc6dA644be119f976BDD65B5e1025Af71553"
+  },
+  "deployer": "0xef27C899E68d1D5ae6d0Dad20131366290f8055b",
+  "timestamp": "2025-09-27T08:35:12.885Z",
+  "config": {
+    "selfHubAddress": "0x68c931C9a534D37aa78094877F46fE46a49F1A51",
+    "scope": "13717901327455018414007582325226879605797265321250223979867799014397208917022"
+  }
+}
