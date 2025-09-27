@@ -95,6 +95,28 @@ body {
   height: 70px;
 }
 
+/* Navbar scrolled state */
+.navbar.scrolled {
+  background: rgba(255, 255, 255, 0.95);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+}
+
+.navbar.scrolled .nav-brand h2 {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.navbar.scrolled .nav-links a {
+  color: var(--text-secondary);
+}
+
+.navbar.scrolled .nav-links a:hover {
+  color: var(--primary-color);
+}
+
 .nav-brand {
   display: flex;
   align-items: center;
@@ -299,9 +321,9 @@ body {
 
 /* Compact Modern Property Cards */
 .hero-visual {
-  position: fixed;
-  right: 350px;
+  position: relative;
   display: flex;
+  margin-left: 250px;
   justify-content: center;
   align-items: center;
 }

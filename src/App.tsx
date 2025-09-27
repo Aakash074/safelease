@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { VerificationModal } from './components/VerificationModal';
 import { PropertyListing } from './components/PropertyListing';
 import { PropertyBrowse } from './components/PropertyBrowse';
@@ -36,6 +36,23 @@ const App: React.FC = () => {
     propertyTokenAddress: string;
   }>({ isOpen: false, propertyId: 0, propertyTokenAddress: '' });
   const [walletAddress, setWalletAddress] = useState<string>('');
+
+  // Handle navbar scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      const navbar = document.querySelector('.navbar');
+      if (navbar) {
+        if (window.scrollY > 50) {
+          navbar.classList.add('scrolled');
+        } else {
+          navbar.classList.remove('scrolled');
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleVerificationComplete = (result: any) => {
     console.log('Verification completed:', result);
@@ -424,7 +441,7 @@ const App: React.FC = () => {
               onClick={() => setCurrentView('dashboard')}
               className="btn btn-gradient ml-4"
             >
-              Dashboard
+              Launch App
             </button>
           </div>
         </nav>
