@@ -430,11 +430,11 @@ const App: React.FC = () => {
         </nav>
 
         <main className="hero">
-          <div className="hero-content">
-            <h1>Secure Property Leasing Made Simple</h1>
+          <div className="hero-content" style={{width: '60%'}}>
+            <h1>Where Real Estate Meets Blockchain</h1>
             <p className="hero-subtitle">
-              SafeLease provides a trusted platform for secure property rentals with 
-              verified tenants, transparent agreements, and comprehensive protection using Self Protocol identity verification.
+              Revolutionize property rentals with zero-knowledge verification, fractional ownership, and AI-powered security. 
+              Experience the future of real estate through decentralized trust and transparent transactions.
             </p>
             <div className="hero-buttons">
               <button
@@ -447,12 +447,26 @@ const App: React.FC = () => {
             </div>
           </div>
           <div className="hero-visual">
-            <div className="property-card">
-              <div className="property-image"></div>
-              <div className="property-info">
-                <h3>Modern Apartment</h3>
-                <p>$2,500/month</p>
-                <div className="property-badge">Verified</div>
+            <div className="property-cards-container">
+              <div className="property-card property-card-1">
+                <div className="property-image">
+                  <img src="/src/assets/lpi1.jpeg" alt="Modern Property" />
+                </div>
+                <div className="property-info">
+                  <h3>Modern Apartment</h3>
+                  <p>$2,500/month</p>
+                  <div className="property-badge">Verified</div>
+                </div>
+              </div>
+              <div className="property-card property-card-2">
+                <div className="property-image">
+                  <img src="/src/assets/lpi2.jpeg" alt="Luxury Property" />
+                </div>
+                <div className="property-info">
+                  <h3>Luxury Villa</h3>
+                  <p>$4,200/month</p>
+                  <div className="property-badge">Premium</div>
+                </div>
               </div>
             </div>
           </div>
