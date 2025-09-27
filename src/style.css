@@ -65,6 +65,18 @@ body {
 }
 
 /* Modern Navigation */
+
+.navbar .container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 70px;
+}
+
+/* Fix navbar layout - ensure horizontal layout */
 .navbar {
   position: fixed;
   top: 0;
@@ -73,16 +85,10 @@ body {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border-light);
-  padding: 0;
+  padding: 0 2rem;
   z-index: 1000;
   transition: all 0.3s ease;
   box-shadow: var(--shadow-sm);
-}
-
-.navbar .container {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 0 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -116,6 +122,7 @@ body {
   display: flex;
   align-items: center;
   gap: 2.5rem;
+  flex-wrap: wrap;
 }
 
 .nav-links a {
@@ -1709,6 +1716,20 @@ body {
   }
 }
 
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0 1rem;
+  }
+  
+  .nav-links {
+    gap: 1.5rem;
+  }
+  
+  .nav-brand h2 {
+    font-size: 1.5rem;
+  }
+}
+
 @media (max-width: 480px) {
   .hero-content h1 {
     font-size: 2rem;
@@ -1721,6 +1742,18 @@ body {
   .btn {
     padding: 0.75rem 1.5rem;
     font-size: 0.875rem;
+  }
+  
+  .navbar {
+    padding: 0 0.75rem;
+  }
+  
+  .nav-links {
+    gap: 1rem;
+  }
+  
+  .nav-brand h2 {
+    font-size: 1.25rem;
   }
 }
 
