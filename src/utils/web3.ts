@@ -8,7 +8,7 @@ const IDENTITY_VERIFICATION_ABI = [
 ];
 
 const RENTAL_MANAGEMENT_ABI = [
-  "function listProperty(string title, string description, string location, uint256 totalMonthlyRent, uint256 roomRent, uint256 deposit, uint256 maxRooms, bool[] features) external",
+  "function listProperty(string title, string description, string location, uint256 totalMonthlyRent, uint256 roomRent, uint256 deposit, uint256 maxRooms, string[] images, tuple(bool hasWifi, bool hasParking, bool hasLaundry, bool hasGym, bool isPetFriendly, bool isSmokeFree, uint256 bedrooms, uint256 bathrooms) features) external",
   "function applyForProperty(uint256 propertyId, bool isFullProperty, uint256 roomNumber, uint256 monthlyIncome, string employmentStatus, string additionalInfo) external",
   "function getProperty(uint256 propertyId) external view returns (tuple(uint256 propertyId, address owner, string title, string description, string location, uint256 totalMonthlyRent, uint256 roomRent, uint256 deposit, uint256 maxRooms, uint256 occupiedRooms, bool isActive, uint256 createdAt, uint256 updatedAt, address propertyTokenContract))",
   "function getProperties() external view returns (uint256[])",
@@ -36,11 +36,11 @@ let signer: ethers.JsonRpcSigner | null = null;
 let identityVerificationContract: ethers.Contract | null = null;
 let rentalManagementContract: ethers.Contract | null = null;
 
-// Contract addresses (these would come from environment variables in production)
+// Contract addresses (UPDATED with new deployed contracts)
 const CONTRACT_ADDRESSES = {
-  IDENTITY_VERIFICATION: process.env.VITE_IDENTITY_VERIFICATION_CONTRACT || '0x1234567890123456789012345678901234567890',
-  RENTAL_MANAGEMENT: process.env.VITE_RENTAL_MANAGEMENT_CONTRACT || '0x2345678901234567890123456789012345678901',
-  PROPERTY_TOKEN: process.env.VITE_PROPERTY_TOKEN_CONTRACT || '0x3456789012345678901234567890123456789012'
+  IDENTITY_VERIFICATION: process.env.VITE_IDENTITY_VERIFICATION_CONTRACT || '0x12f956E51bB5f9C8AA30757C0874C62b28aC294b',
+  RENTAL_MANAGEMENT: process.env.VITE_RENTAL_MANAGEMENT_CONTRACT || '0x9748052dBAf51D002A1270F93982CaEb9c7ebDF5',
+  PROPERTY_TOKEN: process.env.VITE_PROPERTY_TOKEN_CONTRACT || 'DYNAMIC_PER_PROPERTY'
 };
 
 export class Web3Manager {
@@ -171,10 +171,9 @@ export class Web3Manager {
     title: string;
     description: string;
     location: string;
-    totalMonthlyRent: number;
-    roomRent: number;
+    monthlyRent: number;
     deposit: number;
-    maxRooms: number;
+    maxTenants: number;
     features: {
       hasWifi: boolean;
       hasParking: boolean;
@@ -182,30 +181,36 @@ export class Web3Manager {
       hasGym: boolean;
       isPetFriendly: boolean;
       isSmokeFree: boolean;
+      bedrooms: number;
+      bathrooms: number;
     };
   }): Promise<ethers.ContractTransactionResponse> {
     if (!rentalManagementContract) {
       throw new Error('Rental management contract not initialized');
     }
 
-    const features = [
-      propertyData.features.hasWifi,
-      propertyData.features.hasParking,
-      propertyData.features.hasLaundry,
-      propertyData.features.hasGym,
-      propertyData.features.isPetFriendly,
-      propertyData.features.isSmokeFree
-    ];
+    // Convert features to contract format
+    const contractFeatures = {
+      hasWifi: propertyData.features.hasWifi,
+      hasParking: propertyData.features.hasParking,
+      hasLaundry: propertyData.features.hasLaundry,
+      hasGym: propertyData.features.hasGym,
+      isPetFriendly: propertyData.features.isPetFriendly,
+      isSmokeFree: propertyData.features.isSmokeFree,
+      bedrooms: propertyData.features.bedrooms,
+      bathrooms: propertyData.features.bathrooms
+    };
 
     const tx = await rentalManagementContract.listProperty(
       propertyData.title,
       propertyData.description,
       propertyData.location,
-      ethers.parseEther(propertyData.totalMonthlyRent.toString()),
-      ethers.parseEther(propertyData.roomRent.toString()),
+      ethers.parseEther(propertyData.monthlyRent.toString()), // totalMonthlyRent
+      ethers.parseEther(propertyData.monthlyRent.toString()), // roomRent (same for now)
       ethers.parseEther(propertyData.deposit.toString()),
-      propertyData.maxRooms,
-      features
+      propertyData.maxTenants, // maxRooms
+      [], // images array (empty for now)
+      contractFeatures
     );
 
     return tx;

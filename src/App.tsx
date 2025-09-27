@@ -69,46 +69,47 @@ const App: React.FC = () => {
     }
   };
 
-  const handleApplyForProperty = (propertyId: number, isFullProperty: boolean, roomNumber?: number) => {
-    // In a real app, you'd fetch the property details from the contract
-    const mockProperty = {
-      id: propertyId,
-      title: "Sample Property",
-      location: "San Francisco, CA",
-      totalMonthlyRent: 3000,
-      roomRent: 1000,
-      deposit: 3000,
-      maxRooms: 3,
-      occupiedRooms: 1,
-      features: {
-        hasWifi: true,
-        hasParking: true,
-        hasLaundry: false,
-        hasGym: false,
-        isPetFriendly: true,
-        isSmokeFree: true,
-        bedrooms: 3,
-        bathrooms: 2
+  const handleApplyForProperty = async (propertyId: number, isFullProperty: boolean, roomNumber?: number) => {
+    try {
+      // Fetch real property details from the contract
+      const property = await web3Manager.getProperty(propertyId);
+      
+      if (!property) {
+        alert('Property not found. Please try again.');
+        return;
       }
-    };
     
-    setApplicationModal({
-      isOpen: true,
-      property: mockProperty,
-      isFullProperty,
-      selectedRoomNumber: roomNumber
-    });
+      setApplicationModal({
+        isOpen: true,
+        property: property,
+        isFullProperty,
+        selectedRoomNumber: roomNumber
+      });
+    } catch (error) {
+      console.error('Error fetching property:', error);
+      alert('Failed to load property details. Please try again.');
+    }
   };
 
-  const handlePurchaseTokens = (propertyId: number) => {
-    // Mock property token address - in real app, this would come from the property data
-    const mockTokenAddress = '0x1234567890123456789012345678901234567890';
-    
-    setTokenPurchaseModal({
-      isOpen: true,
-      propertyId,
-      propertyTokenAddress: mockTokenAddress
-    });
+  const handlePurchaseTokens = async (propertyId: number) => {
+    try {
+      // Fetch real property details to get token contract address
+      const property = await web3Manager.getProperty(propertyId);
+      
+      if (!property || !property.propertyTokenContract) {
+        alert('Property token contract not found. Property may not be tokenized.');
+        return;
+      }
+      
+      setTokenPurchaseModal({
+        isOpen: true,
+        propertyId,
+        propertyTokenAddress: property.propertyTokenContract
+      });
+    } catch (error) {
+      console.error('Error fetching property token:', error);
+      alert('Failed to load property token information. Please try again.');
+    }
   };
 
   const handleApplicationSuccess = (applicationId: number) => {

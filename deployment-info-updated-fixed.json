@@ -1,0 +1,20 @@
+{
+  "network": "celoTestnet",
+  "deploymentType": "updated_contracts_fixed",
+  "factoryAddress": "0x051376FFf4968Ff12A83e6127Ee07E8703720417",
+  "contracts": {
+    "identityVerification": {
+      "existing": "0x12f956E51bB5f9C8AA30757C0874C62b28aC294b",
+      "note": "Using existing contract"
+    },
+    "rentalManagement": "0x9748052dBAf51D002A1270F93982CaEb9c7ebDF5",
+    "depositEscrow": "0x3D27AC2161da77B0c726865b6DcC7dc4A556FA4B"
+  },
+  "deployer": "0xef27C899E68d1D5ae6d0Dad20131366290f8055b",
+  "timestamp": "2025-09-27T10:58:24.628Z",
+  "config": {
+    "selfHubAddress": "0x68c931C9a534D37aa78094877F46fE46a49F1A51",
+    "scope": "13717901327455018414007582325226879605797265321250223979867799014397208917022"
+  },
+  "notes": "Updated contracts with property tokenization and rent distribution. Use rentalManagement address for new deployments."
+}

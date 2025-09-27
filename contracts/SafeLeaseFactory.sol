@@ -23,43 +23,30 @@ contract SafeLeaseFactory is Ownable {
     address public immutable rentalManagementAddress;
     address public immutable depositEscrowAddress;
     
+    // Mapping to track authorized contracts
+    mapping(address => bool) public authorizedContracts;
+    
     // Events
-    event ContractsDeployed(
-        address indexed identityVerification,
-        address indexed rentalManagement,
-        address indexed depositEscrow
+    event FactoryInitialized(
+        address indexed identityVerificationHub,
+        uint256 scope
+    );
+    
+    event ContractAuthorized(
+        address indexed contractAddress,
+        bool authorized
     );
     
     constructor(
         address _identityVerificationHubV2Address,
         uint256 _scope
     ) Ownable(msg.sender) {
-        // Deploy identity verification contract
-        identityVerification = new SafeLeaseIdentityVerification(
-            _identityVerificationHubV2Address,
-            _scope
-        );
+        // Store configuration for later deployment
+        identityVerificationAddress = address(0); // Will be set when deployed
+        rentalManagementAddress = address(0); // Will be set when deployed
+        depositEscrowAddress = address(0); // Will be set when deployed
         
-        // Deploy rental management contract
-        rentalManagement = new SafeLeaseRentalManagement(
-            address(identityVerification)
-        );
-        
-        // Deploy deposit escrow contract
-        depositEscrow = new SafeLeaseDepositEscrow(
-            address(identityVerification)
-        );
-        
-        // Store addresses
-        identityVerificationAddress = address(identityVerification);
-        rentalManagementAddress = address(rentalManagement);
-        depositEscrowAddress = address(depositEscrow);
-        
-        emit ContractsDeployed(
-            identityVerificationAddress,
-            rentalManagementAddress,
-            depositEscrowAddress
-        );
+        emit FactoryInitialized(_identityVerificationHubV2Address, _scope);
     }
     
     /**
@@ -91,6 +78,16 @@ contract SafeLeaseFactory is Ownable {
     }
     
     /**
+     * @notice Authorize a contract to deploy property tokens
+     * @param _contractAddress Contract address to authorize
+     * @param _authorized Whether to authorize or revoke authorization
+     */
+    function authorizeContract(address _contractAddress, bool _authorized) external onlyOwner {
+        authorizedContracts[_contractAddress] = _authorized;
+        emit ContractAuthorized(_contractAddress, _authorized);
+    }
+    
+    /**
      * @notice Deploy a new property token
      */
     function deployPropertyToken(
@@ -99,14 +96,24 @@ contract SafeLeaseFactory is Ownable {
         uint256 _totalValue,
         uint256 _totalTokens,
         address _propertyOwner
-    ) external onlyOwner returns (address) {
+    ) external returns (address) {
+        require(
+            authorizedContracts[msg.sender] || msg.sender == owner(),
+            "Only authorized contracts or owner can deploy property tokens"
+        );
+        
+        // Use a default identity verification address for now
+        address identityContract = identityVerificationAddress != address(0) 
+            ? identityVerificationAddress 
+            : msg.sender; // Fallback to deployer
+            
         SafeLeasePropertyToken propertyToken = new SafeLeasePropertyToken(
             _propertyId,
             _propertyAddress,
             _totalValue,
             _totalTokens,
             _propertyOwner,
-            identityVerificationAddress
+            identityContract
         );
         
         return address(propertyToken);

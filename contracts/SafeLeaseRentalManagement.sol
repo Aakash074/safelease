@@ -3,6 +3,7 @@ pragma solidity 0.8.28;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./SafeLeaseIdentityVerification.sol";
+import "./SafeLeaseFactory.sol";
 
 /**
  * @title SafeLeaseRentalManagement
@@ -95,8 +96,12 @@ contract SafeLeaseRentalManagement is Ownable {
     // Identity verification contract
     SafeLeaseIdentityVerification public immutable identityVerification;
     
-    constructor(address _identityVerificationContract) Ownable(msg.sender) {
+    // Factory contract for deploying property tokens
+    SafeLeaseFactory public immutable factory;
+    
+    constructor(address _identityVerificationContract, address _factoryContract) Ownable(msg.sender) {
         identityVerification = SafeLeaseIdentityVerification(_identityVerificationContract);
+        factory = SafeLeaseFactory(_factoryContract);
     }
 
     modifier onlyVerifiedLandlord() {
@@ -138,6 +143,19 @@ contract SafeLeaseRentalManagement is Ownable {
         
         uint256 propertyId = nextPropertyId++;
         
+        // Deploy property token contract
+        string memory propertyIdStr = string(abi.encodePacked("PROP-", uint2str(propertyId)));
+        uint256 totalValue = _totalMonthlyRent * 12 * 30; // 30 years value estimation
+        uint256 totalTokens = totalValue / (10**18); // 1 token = 1 wei of property value
+        
+        address propertyTokenAddress = factory.deployPropertyToken(
+            propertyIdStr,
+            _location,
+            totalValue,
+            totalTokens,
+            msg.sender
+        );
+        
         properties[propertyId] = RentalProperty({
             propertyId: propertyId,
             owner: msg.sender,
@@ -153,7 +171,7 @@ contract SafeLeaseRentalManagement is Ownable {
             createdAt: block.timestamp,
             images: _images,
             features: _features,
-            propertyTokenContract: address(0)
+            propertyTokenContract: propertyTokenAddress
         });
         
         ownerProperties[msg.sender].push(propertyId);
@@ -161,6 +179,31 @@ contract SafeLeaseRentalManagement is Ownable {
         emit PropertyListed(propertyId, msg.sender, _title, _location);
         
         return propertyId;
+    }
+    
+    /**
+     * @notice Convert uint256 to string
+     */
+    function uint2str(uint256 _i) internal pure returns (string memory) {
+        if (_i == 0) {
+            return "0";
+        }
+        uint256 j = _i;
+        uint256 len;
+        while (j != 0) {
+            len++;
+            j /= 10;
+        }
+        bytes memory bstr = new bytes(len);
+        uint256 k = len;
+        while (_i != 0) {
+            k = k - 1;
+            uint8 temp = (48 + uint8(_i - _i / 10 * 10));
+            bytes1 b1 = bytes1(temp);
+            bstr[k] = b1;
+            _i /= 10;
+        }
+        return string(bstr);
     }
     
     /**

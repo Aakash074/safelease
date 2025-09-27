@@ -4,6 +4,7 @@ pragma solidity 0.8.28;
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./SafeLeaseIdentityVerification.sol";
+import "./SafeLeasePropertyToken.sol";
 
 /**
  * @title SafeLeaseDepositEscrow
@@ -26,6 +27,7 @@ contract SafeLeaseDepositEscrow is ReentrancyGuard, Ownable {
         bool depositRefunded;
         uint256 totalRentPaid;
         AgreementStatus status;
+        address propertyTokenContract;
     }
     
     // Damage verification structure (AI-powered)
@@ -67,6 +69,11 @@ contract SafeLeaseDepositEscrow is ReentrancyGuard, Ownable {
         address tenant
     );
     
+    event PropertyTokenContractUpdated(
+        uint256 indexed agreementId,
+        address indexed propertyTokenContract
+    );
+    
     event DepositPaid(
         uint256 indexed agreementId,
         address indexed tenant,
@@ -76,6 +83,12 @@ contract SafeLeaseDepositEscrow is ReentrancyGuard, Ownable {
     event RentPaid(
         uint256 indexed agreementId,
         address indexed tenant,
+        uint256 amount
+    );
+    
+    event RentDistributedToTokenHolders(
+        uint256 indexed agreementId,
+        address indexed propertyTokenContract,
         uint256 amount
     );
     
@@ -158,7 +171,8 @@ contract SafeLeaseDepositEscrow is ReentrancyGuard, Ownable {
             isActive: false,
             depositRefunded: false,
             totalRentPaid: 0,
-            status: AgreementStatus.PENDING
+            status: AgreementStatus.PENDING,
+            propertyTokenContract: address(0) // Will be set when property is tokenized
         });
         
         landlordAgreements[msg.sender].push(agreementId);
@@ -167,6 +181,21 @@ contract SafeLeaseDepositEscrow is ReentrancyGuard, Ownable {
         emit LeaseAgreementCreated(agreementId, _propertyId, msg.sender, _tenant);
         
         return agreementId;
+    }
+    
+    /**
+     * @notice Update property token contract address for a lease agreement
+     * @param _agreementId Agreement ID
+     * @param _propertyTokenContract Property token contract address
+     */
+    function updatePropertyTokenContract(uint256 _agreementId, address _propertyTokenContract) external {
+        LeaseAgreement storage agreement = leaseAgreements[_agreementId];
+        require(agreement.landlord == msg.sender, "Only landlord can update token contract");
+        require(_agreementId < nextAgreementId, "Agreement does not exist");
+        
+        agreement.propertyTokenContract = _propertyTokenContract;
+        
+        emit PropertyTokenContractUpdated(_agreementId, _propertyTokenContract);
     }
     
     /**
@@ -194,8 +223,24 @@ contract SafeLeaseDepositEscrow is ReentrancyGuard, Ownable {
         require(agreement.isActive, "Agreement is not active");
         require(msg.value >= agreement.monthlyRent, "Insufficient rent amount");
         
-        // Transfer rent to landlord
-        payable(agreement.landlord).transfer(agreement.monthlyRent);
+        // Get property token contract address
+        address propertyTokenContract = agreement.propertyTokenContract;
+        
+        if (propertyTokenContract != address(0)) {
+            // Property is tokenized - distribute rent to token holders
+            SafeLeasePropertyToken tokenContract = SafeLeasePropertyToken(propertyTokenContract);
+            
+            // Distribute rent to token holders (property owner can claim their share)
+            tokenContract.distributeRent{value: agreement.monthlyRent}(agreement.monthlyRent);
+            
+            emit RentPaid(_agreementId, msg.sender, agreement.monthlyRent);
+            emit RentDistributedToTokenHolders(_agreementId, propertyTokenContract, agreement.monthlyRent);
+        } else {
+            // Property is not tokenized - pay directly to landlord
+            payable(agreement.landlord).transfer(agreement.monthlyRent);
+            
+            emit RentPaid(_agreementId, msg.sender, agreement.monthlyRent);
+        }
         
         agreement.totalRentPaid += agreement.monthlyRent;
         
@@ -203,8 +248,6 @@ contract SafeLeaseDepositEscrow is ReentrancyGuard, Ownable {
         if (msg.value > agreement.monthlyRent) {
             payable(msg.sender).transfer(msg.value - agreement.monthlyRent);
         }
-        
-        emit RentPaid(_agreementId, msg.sender, agreement.monthlyRent);
     }
     
     /**

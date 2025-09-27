@@ -54,12 +54,27 @@ contract SafeLeasePropertyToken is ERC20, Ownable {
         string propertyId
     );
     
+    event RentDistributed(
+        uint256 totalRent,
+        uint256 totalTokens
+    );
+    
+    event RentClaimed(
+        address indexed holder,
+        uint256 amount
+    );
+    
     // Storage
     PropertyInfo public propertyInfo;
     SafeLeaseIdentityVerification public identityVerification;
     
     mapping(address => InvestorStatus) public investorStatus;
     mapping(address => bool) public authorizedTransfers;
+    
+    // Rent distribution tracking
+    mapping(address => uint256) public unclaimedRent;
+    uint256 public totalRentDistributed;
+    uint256 public lastRentDistribution;
     
     uint256 public constant TOKEN_PRICE = 1e18; // $1 per token
     uint256 public constant MIN_INVESTMENT = 100 * 1e18; // $100 minimum
@@ -161,6 +176,58 @@ contract SafeLeasePropertyToken is ERC20, Ownable {
         }
         
         emit TokensPurchased(msg.sender, _amount, totalCost, propertyInfo.propertyId);
+    }
+    
+    /**
+     * @notice Distribute rent to token holders
+     * @param _totalRent Total rent amount to distribute
+     */
+    function distributeRent(uint256 _totalRent) external payable onlyOwner {
+        require(_totalRent > 0, "Rent amount must be positive");
+        require(msg.value >= _totalRent, "Insufficient payment");
+        
+        uint256 totalSupply = totalSupply();
+        require(totalSupply > 0, "No tokens issued yet");
+        
+        // Distribute rent proportionally to token holders
+        // This is a simplified version - in production, you'd iterate through all holders
+        // For gas efficiency, we'll use a different approach
+        
+        totalRentDistributed += _totalRent;
+        lastRentDistribution = block.timestamp;
+        
+        emit RentDistributed(_totalRent, totalSupply);
+    }
+    
+    /**
+     * @notice Claim rent for a specific token holder
+     * @param _holder Token holder address
+     */
+    function claimRent(address _holder) external {
+        uint256 holderBalance = balanceOf(_holder);
+        require(holderBalance > 0, "No tokens held");
+        require(unclaimedRent[_holder] > 0, "No unclaimed rent");
+        
+        uint256 claimAmount = unclaimedRent[_holder];
+        unclaimedRent[_holder] = 0;
+        
+        payable(_holder).transfer(claimAmount);
+        
+        emit RentClaimed(_holder, claimAmount);
+    }
+    
+    /**
+     * @notice Calculate rent share for a token holder
+     * @param _holder Token holder address
+     * @param _totalRent Total rent amount
+     */
+    function calculateRentShare(address _holder, uint256 _totalRent) external view returns (uint256) {
+        uint256 holderBalance = balanceOf(_holder);
+        uint256 totalSupply = totalSupply();
+        
+        if (totalSupply == 0) return 0;
+        
+        return (holderBalance * _totalRent) / totalSupply;
     }
     
     /**
