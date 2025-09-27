@@ -40,3 +40,5 @@ FRONTEND_FIXED.md
 DEPLOYMENT_WORKFLOW.md
 SETUP.md
 
+__pycache__
+
