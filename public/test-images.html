@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .image-test { margin: 20px 0; }
+        img { max-width: 300px; height: 200px; object-fit: cover; border: 1px solid #ccc; }
+        .status { margin-top: 10px; padding: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>Image Loading Test</h1>
+    <p>Testing if images from /images/ directory are accessible:</p>
+    
+    <div class="image-test">
+        <h3>lpi1.jpeg</h3>
+        <img src="/images/lpi1.jpeg" alt="Property Image 1" onload="showStatus(this, 'success')" onerror="showStatus(this, 'error')">
+        <div id="status1" class="status"></div>
+    </div>
+    
+    <div class="image-test">
+        <h3>lpi2.jpeg</h3>
+        <img src="/images/lpi2.jpeg" alt="Property Image 2" onload="showStatus(this, 'success')" onerror="showStatus(this, 'error')">
+        <div id="status2" class="status"></div>
+    </div>
+    
+    <div class="image-test">
+        <h3>lpi3.jpeg</h3>
+        <img src="/images/lpi3.jpeg" alt="Property Image 3" onload="showStatus(this, 'success')" onerror="showStatus(this, 'error')">
+        <div id="status3" class="status"></div>
+    </div>
+
+    <script>
+        function showStatus(img, type) {
+            const statusId = 'status' + img.alt.match(/\d+/)[0];
+            const statusDiv = document.getElementById(statusId);
+            if (type === 'success') {
+                statusDiv.textContent = '✅ Image loaded successfully';
+                statusDiv.className = 'status success';
+            } else {
+                statusDiv.textContent = '❌ Failed to load image';
+                statusDiv.className = 'status error';
+            }
+        }
+    </script>
+</body>
+</html>
