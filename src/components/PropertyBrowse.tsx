@@ -65,7 +65,7 @@ export const PropertyBrowse: React.FC<PropertyBrowseProps> = ({
         deposit: 4500,
         maxRooms: 3,
         occupiedRooms: 1,
-        images: ['/images/lpi1.jpeg', '/images/lpi1.jpeg'],
+        images: ['https://raw.githubusercontent.com/Aakash074/safelease/refs/heads/main/public/images/lpi1.jpeg', 'https://raw.githubusercontent.com/Aakash074/safelease/refs/heads/main/public/images/lpi1.jpeg'],
         features: {
           hasWifi: true,
           hasParking: true,
@@ -91,7 +91,7 @@ export const PropertyBrowse: React.FC<PropertyBrowseProps> = ({
         deposit: 3200,
         maxRooms: 2,
         occupiedRooms: 0,
-        images: ['/images/lpi2.jpeg'],
+        images: ['https://raw.githubusercontent.com/Aakash074/safelease/refs/heads/main/public/images/lpi2.jpeg'],
         features: {
           hasWifi: true,
           hasParking: true,
@@ -116,7 +116,7 @@ export const PropertyBrowse: React.FC<PropertyBrowseProps> = ({
         deposit: 8000,
         maxRooms: 4,
         occupiedRooms: 2,
-        images: ['/images/lpi3.jpeg', '/images/lpi3.jpeg'],
+        images: ['https://raw.githubusercontent.com/Aakash074/safelease/refs/heads/main/public/images/lpi3.jpeg', 'https://raw.githubusercontent.com/Aakash074/safelease/refs/heads/main/public/images/lpi3.jpeg'],
         features: {
           hasWifi: true,
           hasParking: true,

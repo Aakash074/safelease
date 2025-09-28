@@ -469,7 +469,7 @@ const App: React.FC = () => {
             <div className="property-cards-container">
               <div className="property-card property-card-1">
                 <div className="property-image">
-                  <img src="/src/assets/lpi1.jpeg" alt="Modern Property" />
+                  <img src="https://raw.githubusercontent.com/Aakash074/safelease/refs/heads/main/public/images/lpi1.jpeg" alt="Modern Property" />
                 </div>
                 <div className="property-info">
                   <h3>Modern Apartment</h3>
@@ -479,7 +479,7 @@ const App: React.FC = () => {
               </div>
               <div className="property-card property-card-2">
                 <div className="property-image">
-                  <img src="/src/assets/lpi2.jpeg" alt="Luxury Property" />
+                  <img src="https://raw.githubusercontent.com/Aakash074/safelease/refs/heads/main/public/images/lpi2.jpeg" alt="Luxury Property" />
                 </div>
                 <div className="property-info">
                   <h3>Luxury Villa</h3>
