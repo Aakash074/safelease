@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import lpi1 from '../assets/lpi1.jpeg';
-import lpi2 from '../assets/lpi2.jpeg';
-import lpi3 from '../assets/lpi3.jpeg';
+import { handleImageError } from '../utils/imageUtils';
 
 interface Property {
   id: number;
@@ -67,7 +65,7 @@ export const PropertyBrowse: React.FC<PropertyBrowseProps> = ({
         deposit: 4500,
         maxRooms: 3,
         occupiedRooms: 1,
-        images: [lpi1, lpi1],
+        images: ['/images/lpi1.jpeg', '/images/lpi1.jpeg'],
         features: {
           hasWifi: true,
           hasParking: true,
@@ -93,7 +91,7 @@ export const PropertyBrowse: React.FC<PropertyBrowseProps> = ({
         deposit: 3200,
         maxRooms: 2,
         occupiedRooms: 0,
-        images: [lpi2],
+        images: ['/images/lpi2.jpeg'],
         features: {
           hasWifi: true,
           hasParking: true,
@@ -118,7 +116,7 @@ export const PropertyBrowse: React.FC<PropertyBrowseProps> = ({
         deposit: 8000,
         maxRooms: 4,
         occupiedRooms: 2,
-        images: [lpi3, lpi3],
+        images: ['/images/lpi3.jpeg', '/images/lpi3.jpeg'],
         features: {
           hasWifi: true,
           hasParking: true,
@@ -365,6 +363,7 @@ export const PropertyBrowse: React.FC<PropertyBrowseProps> = ({
                       src={property.images[0]} 
                       alt={property.title}
                       className="w-full h-full object-cover rounded-t-xl"
+                      onError={handleImageError}
                     />
                     <div className="absolute top-2 right-2">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${getOccupancyColor(property.occupiedRooms, property.maxRooms)}`}>
@@ -447,6 +446,7 @@ export const PropertyBrowse: React.FC<PropertyBrowseProps> = ({
                         src={property.images[0]}
                         alt={property.title}
                         className="w-full md:w-48 h-32 object-cover rounded-lg"
+                        onError={handleImageError}
                       />
                       <div className="absolute top-2 right-2">
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${getOccupancyColor(property.occupiedRooms, property.maxRooms)}`}>
