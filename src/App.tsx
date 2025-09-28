@@ -162,14 +162,15 @@ const App: React.FC = () => {
             <div className="nav-links">
               <div className="text-sm text-gray-500">
                 {userVerification.isVerified ? (
-                  <span className="text-green-600">✓ Verified {userVerification.userType}</span>
+                  <span className="" style={{color: 'white'}}>✓ Verified {userVerification.userType}</span>
                 ) : (
-                  <span className="text-red-600">⚠ Not verified</span>
+                  <span style={{color: 'white'}}>⚠ Not verified</span>
                 )}
               </div>
               <button
                 onClick={() => setCurrentView('landing')}
                 className="btn btn-ghost"
+                style={{color: 'white'}}
               >
                 Back to Home
               </button>

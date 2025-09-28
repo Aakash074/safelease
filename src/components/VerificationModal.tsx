@@ -78,25 +78,25 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
 
   console.log('VerificationModal rendering with isOpen:', isOpen, 'type:', verificationType);
 
-  return (
-    <div className="modal-overlay" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}>
-      <div className="modal-content" style={{ backgroundColor: 'white', borderRadius: '0.5rem', padding: '1.5rem', maxWidth: '28rem', width: '100%', margin: '1rem' }}>
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">
-            {verificationType === 'landlord' && 'Landlord Verification'}
-            {verificationType === 'tenant' && 'Tenant Verification'}
-          </h2>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 text-xl"
-          >
-            ×
-          </button>
-        </div>
+      return (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h2 className="modal-title">
+                {verificationType === 'landlord' && '🏡 Landlord Verification'}
+                {verificationType === 'tenant' && '🔑 Tenant Verification'}
+              </h2>
+              <button
+                onClick={onClose}
+                className="modal-close"
+              >
+                ×
+              </button>
+            </div>
 
         {step === 'form' && (
-          <div className="space-y-4">
-            <p className="text-gray-600">
+          <div className="modal-body">
+            <p className="text-gray-600 mb-4">
               {verificationType === 'landlord' && 
                 'Verify your identity to list rental properties on SafeLease.'}
               {verificationType === 'tenant' && 
@@ -104,15 +104,15 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
             </p>
 
             {verificationType === 'tenant' && (
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+              <div className="form-grid">
+                <div className="form-group">
+                  <label className="form-label">
                     Monthly Income Range
                   </label>
                   <select
                     value={formData.incomeRange}
                     onChange={(e) => setFormData({ ...formData, incomeRange: e.target.value })}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="form-select"
                   >
                     <option value="">Select income range</option>
                     <option value="0-2500">$0 - $2,500</option>
@@ -122,14 +122,14 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
                     <option value="10000+">$10,000+</option>
                   </select>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                <div className="form-group">
+                  <label className="form-label">
                     Employment Status
                   </label>
                   <select
                     value={formData.employmentStatus}
                     onChange={(e) => setFormData({ ...formData, employmentStatus: e.target.value })}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="form-select"
                   >
                     <option value="">Select employment status</option>
                     <option value="employed">Employed</option>
@@ -142,33 +142,34 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
               </div>
             )}
 
-            <div className="flex space-x-3 pt-4">
+            <div className="modal-footer">
+              <button
+                onClick={onClose}
+                className="btn btn-secondary"
+              >
+                Cancel
+              </button>
               <button
                 onClick={handleStartVerification}
                 disabled={isLoading}
-                className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn btn-gradient"
               >
                 {isLoading ? 'Starting...' : 'Start Verification'}
-              </button>
-              <button
-                onClick={onClose}
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-              >
-                Cancel
               </button>
             </div>
           </div>
         )}
 
         {step === 'qr' && (
-          <div className="text-center space-y-4">
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h3 className="text-lg font-medium mb-2">Scan QR Code</h3>
-              <p className="text-gray-600 mb-4">
+          <div className="modal-body">
+            <div className="qr-section">
+              <h3 className="qr-title">📱 Scan QR Code</h3>
+              <p className="qr-description">
                 Scan this QR code with your Self app to complete verification.
               </p>
-              {selfApp ? (
-                <div className="flex justify-center">
+              
+              <div className="qr-container">
+                {selfApp ? (
                   <SelfQRcode
                     selfApp={selfApp}
                     onSuccess={() => {
@@ -181,67 +182,63 @@ export const VerificationModal: React.FC<VerificationModalProps> = ({
                     }}
                     size={200}
                   />
-                </div>
-              ) : qrCode ? (
-                <div className="flex justify-center">
-                  <img src={qrCode} alt="Verification QR Code" className="w-48 h-48" />
-                </div>
-              ) : (
-                <div className="flex justify-center">
-                  <div className="w-48 h-48 bg-gray-200 rounded flex items-center justify-center">
-                    <p className="text-gray-500">Loading QR Code...</p>
+                ) : qrCode ? (
+                  <img src={qrCode} alt="Verification QR Code" style={{ width: '200px', height: '200px', borderRadius: '1rem' }} />
+                ) : (
+                  <div className="qr-placeholder">
+                    Loading QR Code...
                   </div>
-                </div>
-              )}
-            </div>
-            
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <div className="flex items-start">
-                <div className="text-blue-600 text-xl mr-3">ℹ️</div>
-                <div>
-                  <h4 className="text-blue-800 font-medium mb-1">Demo Mode</h4>
-                  <p className="text-blue-700 text-sm">
-                    For the hackathon demo, click "Complete Verification" to simulate successful verification.
-                    In production, this would be handled by the Self Protocol integration.
-                  </p>
-                </div>
+                )}
               </div>
             </div>
             
-            <div className="space-y-3">
-              <button
-                onClick={() => handleVerificationComplete({ success: true })}
-                className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700"
-              >
-                Complete Verification (Demo)
-              </button>
+            <div className="demo-notice">
+              <div className="demo-notice-header">
+                <div className="demo-notice-icon">ℹ️</div>
+                <h4 className="demo-notice-title">Demo Mode</h4>
+              </div>
+              <p className="demo-notice-text">
+                For the hackathon demo, click "Complete Verification" to simulate successful verification.
+                In production, this would be handled by the Self Protocol integration.
+              </p>
+            </div>
+            
+            <div className="modal-footer">
               <button
                 onClick={() => setStep('form')}
-                className="w-full bg-gray-300 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-400"
+                className="btn btn-secondary"
               >
                 Back
+              </button>
+              <button
+                onClick={() => handleVerificationComplete({ success: true })}
+                className="btn btn-success"
+              >
+                Complete Verification (Demo)
               </button>
             </div>
           </div>
         )}
 
         {step === 'complete' && (
-          <div className="text-center space-y-4">
-            <div className="bg-green-50 p-4 rounded-lg">
-              <div className="text-green-600 text-4xl mb-2">✓</div>
-              <h3 className="text-lg font-medium text-green-800 mb-2">
+          <div className="modal-body">
+            <div className="text-center">
+              <div className="text-green-600 text-6xl mb-4">✅</div>
+              <h3 className="text-2xl font-bold text-green-800 mb-3">
                 Verification Complete!
               </h3>
-              <p className="text-green-700">
+              <p className="text-green-700 text-lg mb-6">
                 Your identity has been successfully verified. You can now use SafeLease services.
               </p>
             </div>
-            <button
-              onClick={onClose}
-              className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700"
-            >
-              Continue
-            </button>
+            <div className="modal-footer">
+              <button
+                onClick={onClose}
+                className="btn btn-success w-full"
+              >
+                Continue to Dashboard
+              </button>
+            </div>
           </div>
         )}
       </div>

@@ -71,12 +71,12 @@ export const PropertyListing: React.FC<PropertyListingProps> = ({
 
   if (!isVerificationComplete) {
     return (
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-        <div className="flex items-center">
-          <div className="text-yellow-600 text-xl mr-3">⚠️</div>
-          <div>
-            <h3 className="text-yellow-800 font-medium">Verification Required</h3>
-            <p className="text-yellow-700 text-sm">
+      <div className="dashboard-card">
+        <div className="alert-warning">
+          <div className="alert-icon">⚠️</div>
+          <div className="alert-content">
+            <h3 className="alert-title">Verification Required</h3>
+            <p className="alert-text">
               Please complete landlord verification to list properties.
             </p>
           </div>
@@ -86,49 +86,52 @@ export const PropertyListing: React.FC<PropertyListingProps> = ({
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">List Your Property</h2>
+    <div className="dashboard-card">
+      <div className="dashboard-card-header">
+        <h2 className="dashboard-card-title">🏡 List Your Property</h2>
+        <p className="dashboard-card-subtitle">Create a detailed listing for your rental property</p>
+      </div>
       
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Basic Information */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+        <div className="form-grid">
+          <div className="form-group">
+            <label className="form-label">
               Property Title *
             </label>
             <input
               type="text"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="form-input"
               placeholder="e.g., Modern 2BR Apartment in Downtown"
               required
             />
           </div>
           
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+          <div className="form-group">
+            <label className="form-label">
               Location *
             </label>
             <input
               type="text"
               value={formData.location}
               onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="form-input"
               placeholder="e.g., San Francisco, CA"
               required
             />
           </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+        <div className="form-group">
+          <label className="form-label">
             Description *
           </label>
           <textarea
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="form-textarea"
             placeholder="Describe your property, amenities, and what makes it special..."
             rows={4}
             required
@@ -136,16 +139,16 @@ export const PropertyListing: React.FC<PropertyListingProps> = ({
         </div>
 
         {/* Pricing */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+        <div className="form-grid-3">
+          <div className="form-group">
+            <label className="form-label">
               Monthly Rent (CELO) *
             </label>
             <input
               type="number"
               value={formData.monthlyRent}
               onChange={(e) => setFormData({ ...formData, monthlyRent: e.target.value })}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="form-input"
               placeholder="2500"
               min="0"
               step="0.01"
@@ -153,15 +156,15 @@ export const PropertyListing: React.FC<PropertyListingProps> = ({
             />
           </div>
           
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+          <div className="form-group">
+            <label className="form-label">
               Security Deposit (CELO) *
             </label>
             <input
               type="number"
               value={formData.deposit}
               onChange={(e) => setFormData({ ...formData, deposit: e.target.value })}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="form-input"
               placeholder="2500"
               min="0"
               step="0.01"
@@ -169,15 +172,15 @@ export const PropertyListing: React.FC<PropertyListingProps> = ({
             />
           </div>
           
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+          <div className="form-group">
+            <label className="form-label">
               Max Tenants *
             </label>
             <input
               type="number"
               value={formData.maxTenants}
               onChange={(e) => setFormData({ ...formData, maxTenants: e.target.value })}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="form-input"
               placeholder="2"
               min="1"
               required
@@ -186,53 +189,53 @@ export const PropertyListing: React.FC<PropertyListingProps> = ({
         </div>
 
         {/* Property Type */}
-        <div>
-          <label className="flex items-center">
+        <div className="form-group">
+          <label className="flex items-center p-3 bg-gray-50 rounded-lg border-2 border-transparent hover:border-blue-200 transition-colors cursor-pointer">
             <input
               type="checkbox"
               checked={formData.isShared}
               onChange={(e) => setFormData({ ...formData, isShared: e.target.checked })}
-              className="mr-2"
+              className="mr-3 w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
             />
-            <span className="text-sm font-medium text-gray-700">
-              This is a shared accommodation (shared tenant matching available)
+            <span className="form-label mb-0">
+              🏠 This is a shared accommodation (shared tenant matching available)
             </span>
           </label>
         </div>
 
         {/* Property Features */}
-        <div>
-          <h3 className="text-lg font-medium text-gray-800 mb-3">Property Features</h3>
+        <div className="form-group">
+          <h3 className="form-label mb-4">✨ Property Features</h3>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-            <label className="flex items-center">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+            <label className="flex items-center p-2 bg-gray-50 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer">
               <input
                 type="checkbox"
                 checked={formData.features.hasWifi}
                 onChange={(e) => handleFeatureChange('hasWifi', e.target.checked)}
-                className="mr-2"
+                className="mr-2 w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
               />
-              <span className="text-sm text-gray-700">WiFi</span>
+              <span className="text-sm font-medium text-gray-700">📶 WiFi</span>
             </label>
             
-            <label className="flex items-center">
+            <label className="flex items-center p-2 bg-gray-50 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer">
               <input
                 type="checkbox"
                 checked={formData.features.hasParking}
                 onChange={(e) => handleFeatureChange('hasParking', e.target.checked)}
-                className="mr-2"
+                className="mr-2 w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
               />
-              <span className="text-sm text-gray-700">Parking</span>
+              <span className="text-sm font-medium text-gray-700">🚗 Parking</span>
             </label>
             
-            <label className="flex items-center">
+            <label className="flex items-center p-2 bg-gray-50 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer">
               <input
                 type="checkbox"
                 checked={formData.features.hasLaundry}
                 onChange={(e) => handleFeatureChange('hasLaundry', e.target.checked)}
-                className="mr-2"
+                className="mr-2 w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
               />
-              <span className="text-sm text-gray-700">Laundry</span>
+              <span className="text-sm font-medium text-gray-700">🧺 Laundry</span>
             </label>
             
             <label className="flex items-center">
@@ -266,15 +269,15 @@ export const PropertyListing: React.FC<PropertyListingProps> = ({
             </label>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Bedrooms
+          <div className="form-grid">
+            <div className="form-group">
+              <label className="form-label">
+                🛏️ Bedrooms
               </label>
               <select
                 value={formData.features.bedrooms}
                 onChange={(e) => handleFeatureChange('bedrooms', parseInt(e.target.value))}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="form-select"
               >
                 {[1, 2, 3, 4, 5, 6].map(num => (
                   <option key={num} value={num}>{num} {num === 1 ? 'Bedroom' : 'Bedrooms'}</option>
@@ -282,14 +285,14 @@ export const PropertyListing: React.FC<PropertyListingProps> = ({
               </select>
             </div>
             
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Bathrooms
+            <div className="form-group">
+              <label className="form-label">
+                🚿 Bathrooms
               </label>
               <select
                 value={formData.features.bathrooms}
                 onChange={(e) => handleFeatureChange('bathrooms', parseInt(e.target.value))}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="form-select"
               >
                 {[1, 1.5, 2, 2.5, 3, 3.5, 4].map(num => (
                   <option key={num} value={num}>{num} {num === 1 ? 'Bathroom' : 'Bathrooms'}</option>
@@ -300,12 +303,12 @@ export const PropertyListing: React.FC<PropertyListingProps> = ({
         </div>
 
         {/* Submit Button */}
-        <div className="pt-4">
+        <div className="form-group pt-6">
           <button
             type="submit"
-            className="w-full bg-green-600 text-white py-3 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 font-medium"
+            className="btn btn-success w-full text-lg py-3"
           >
-            List Property
+            🏡 List Property & Create Token
           </button>
         </div>
       </form>
